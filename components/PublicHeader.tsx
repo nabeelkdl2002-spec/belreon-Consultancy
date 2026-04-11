@@ -10,8 +10,10 @@ const PublicHeader: React.FC = () => {
         <Link to="/" className="flex items-center gap-4">
           <img src={companyLogo} alt="Company Logo" className="h-20 w-auto object-contain" />
           <div className="flex flex-col">
-            <span className="text-3xl font-bold text-black leading-none tracking-tight">Belreon</span>
-            <span className="text-lg font-medium text-yellow-600 leading-tight tracking-widest uppercase">Investments</span>
+            <span className="text-3xl font-black leading-none tracking-tighter bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent">BELREON</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter pb-0.5 mt-1">
+              Simplifying Finance for Every Business
+            </span>
           </div>
         </Link>
         <div className="flex items-center space-x-2">
@@ -22,6 +24,9 @@ const PublicHeader: React.FC = () => {
           >
             Home
           </NavLink>
+          <Link to="/finops" className="text-sm font-medium text-white bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+            Belreon Finops
+          </Link>
           <Link to="/client-login" className="text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg transition-colors">
             Client Login
           </Link>

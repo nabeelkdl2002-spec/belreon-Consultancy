@@ -8,10 +8,9 @@ import { Project } from '../types';
 const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card title="New Client Inquiries" value="4" details="Awaiting initial contact" />
         <Card title="Active Projects" value="12" details="Projects currently in progress" />
-        <Card title="Net Profit (This Month)" value="$21,750" details="Revenue minus expenses" valueClassName="text-green-600" />
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-md transition-shadow hover:shadow-lg">

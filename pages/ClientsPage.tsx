@@ -1,10 +1,11 @@
 
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import StatusBadge from '../components/StatusBadge';
 import { Client, ProjectStatus, Stock } from '../types';
-import { SearchIcon, TrashIcon, PencilIcon } from '../components/icons';
+import { SearchIcon, TrashIcon, PencilIcon, BriefcaseIcon } from '../components/icons';
 import Modal from '../components/Modal';
 
 const ClientDetailsModal: React.FC<{ client: Client; onClose: () => void; onApprove: (id: number) => void; onReject: (id: number) => void; }> = ({ client, onClose, onApprove, onReject }) => {
@@ -132,7 +133,9 @@ const AddClientModal: React.FC<{ stocks: Stock[]; onClose: () => void; onSave: (
 
 
 const ClientsPage: React.FC = () => {
-    const { clients, stocks, updateClientStatus, updateClientDetails, deleteClient, addClient } = useAuth();
+    const { service: serviceParam } = useParams<{ service?: string }>();
+    const navigate = useNavigate();
+    const { clients, stocks, services, updateClientStatus, updateClientDetails, deleteClient, addClient } = useAuth();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -141,12 +144,39 @@ const ClientsPage: React.FC = () => {
     const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [filters, setFilters] = useState({ month: '', year: '', service: '', status: '' });
+
+    const tabs = useMemo(() => [
+        { id: 'all', label: 'All Clients', service: '' },
+        { id: 'stock-market', label: 'Stock Market', service: 'Stock Market Recommendations' },
+        { id: 'financial-analysis', label: 'Financial Analysis', service: 'Financial Analysis' },
+        { id: 'financial-controlling', label: 'Financial Controlling', service: 'Financial Controlling' },
+        { id: 'financial-modelling', label: 'Financial Modelling', service: 'Financial Modelling' },
+        { id: 'valuation', label: 'Valuation', service: 'Valuation' },
+    ], []);
+
+    const activeTabId = useMemo(() => {
+        if (!serviceParam) return 'all';
+        return serviceParam;
+    }, [serviceParam]);
+
+    const currentService = useMemo(() => {
+        const tab = tabs.find(t => t.id === activeTabId);
+        return tab?.service || null;
+    }, [activeTabId, tabs]);
+
+    useEffect(() => {
+        if (currentService) {
+            setFilters(prev => ({ ...prev, service: currentService }));
+        } else {
+            setFilters(prev => ({ ...prev, service: '' }));
+        }
+    }, [currentService]);
     
     const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    const clearFilters = () => setFilters({ month: '', year: '', service: '', status: '' });
+    const clearFilters = () => setFilters({ month: '', year: '', service: currentService || '', status: '' });
 
     const filteredClients = useMemo(() => {
         let activeClients = clients.filter(c => !c.isDeleted);
@@ -160,12 +190,19 @@ const ClientsPage: React.FC = () => {
         }
 
         if (filters.status) activeClients = activeClients.filter(c => c.projectStatus === filters.status);
-        if (filters.service) activeClients = activeClients.filter(c => c.service === filters.service);
+        
+        // If we are on a specific service tab, we only show those clients
+        if (currentService) {
+            activeClients = activeClients.filter(c => c.service === currentService);
+        } else if (filters.service) {
+            activeClients = activeClients.filter(c => c.service === filters.service);
+        }
+
         if (filters.year) activeClients = activeClients.filter(c => c.submissionDate && c.submissionDate.startsWith(filters.year));
         if (filters.month) activeClients = activeClients.filter(c => c.submissionDate && new Date(c.submissionDate).getMonth() + 1 === parseInt(filters.month));
 
         return activeClients;
-    }, [searchTerm, clients, filters]);
+    }, [searchTerm, clients, filters, currentService]);
 
     const handleExport = () => {
         const headers = ["Company Name", "Contact Person", "Email", "Stock/Service", "Submission Date", "Project Status"];
@@ -219,6 +256,41 @@ const ClientsPage: React.FC = () => {
       )}
       
       <div className="bg-white p-6 rounded-xl shadow-md transition-shadow hover:shadow-lg">
+        {/* Header with Service Title */}
+        <div className="mb-6 pb-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 p-2 rounded-lg text-blue-700">
+              <BriefcaseIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">
+                {currentService ? `${currentService} Clients` : 'All Client Management'}
+              </h1>
+              <p className="text-sm text-slate-500">
+                {currentService 
+                  ? `Managing clients specifically for ${currentService}` 
+                  : 'Overview of all clients across all services'}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 overflow-x-auto max-w-full">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => navigate(tab.id === 'all' ? '/admin/clients' : `/admin/clients/${tab.id}`)}
+                className={`flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTabId === tab.id 
+                  ? 'bg-white text-blue-700 shadow-sm' 
+                  : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Search and Actions */}
         <div className="flex justify-between items-center mb-4">
           <div className="relative"><input type="text" placeholder="Search for a client..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border bg-white text-slate-900 border-slate-300 rounded-lg w-80 focus:ring-blue-500 focus:border-blue-500"/><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><SearchIcon className="h-5 w-5 text-slate-400" /></div></div>
@@ -229,7 +301,13 @@ const ClientsPage: React.FC = () => {
         <div className="bg-slate-50 p-4 rounded-lg flex flex-wrap items-center gap-4 mb-6">
             <select name="month" value={filters.month} onChange={handleFilterChange} className="filter-select"><option value="">All Months</option>{[...Array(12)].map((_, i) => <option key={i+1} value={i+1}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>)}</select>
             <select name="year" value={filters.year} onChange={handleFilterChange} className="filter-select"><option value="">All Years</option>{years.map(y => <option key={y} value={y}>{y}</option>)}</select>
-            <select name="service" value={filters.service} onChange={handleFilterChange} className="filter-select"><option value="">All Stocks</option>{stocks.map(s=><option key={s.id} value={s.name}>{s.name}</option>)}</select>
+            {!currentService && (
+                <select name="service" value={filters.service} onChange={handleFilterChange} className="filter-select">
+                    <option value="">All Services</option>
+                    <option value="Stock Market Recommendations">Stock Market Recommendations</option>
+                    {services.map(s => <option key={s.id} value={s.title}>{s.title}</option>)}
+                </select>
+            )}
             <select name="status" value={filters.status} onChange={handleFilterChange} className="filter-select"><option value="">All Statuses</option>{Object.values(ProjectStatus).map(s=><option key={s} value={s}>{s}</option>)}</select>
             <button onClick={clearFilters} className="text-sm text-slate-600 hover:text-blue-600">Clear Filters</button>
             <button onClick={handleExport} className="ml-auto text-sm bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Export to Excel</button>

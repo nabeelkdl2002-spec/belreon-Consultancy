@@ -1,4 +1,4 @@
-import { Project, Client, User, Transaction, Stock, NewsItem, ProjectStatus, UserRole, UserStatus, TransactionType, FinancialStatementItem, FinancialStatementCategory, AboutUsContent } from './types';
+import { Project, Client, User, Transaction, Stock, NewsItem, ProjectStatus, UserRole, UserStatus, TransactionType, FinancialStatementItem, FinancialStatementCategory, AboutUsContent, Service, SlideshowImage } from './types';
 
 export const recentProjects: Project[] = [
   { clientName: 'Innovate Corp', service: 'Tech Growth Portfolio', assignedTo: 'Nabeel K.', status: ProjectStatus.Completed },
@@ -195,3 +195,92 @@ export const initialAboutUsContent: AboutUsContent = {
     },
   ],
 };
+
+export const initialServices: Service[] = [
+  {
+    id: 1,
+    title: 'Financial Analysis',
+    description: 'Comprehensive assessment of your financial data to identify trends, risks, and opportunities for optimization.',
+    imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2940&auto=format&fit=crop',
+    icon: 'ChartPieIcon',
+  },
+  {
+    id: 2,
+    title: 'Financial Controlling',
+    description: 'Strategic oversight and management of financial processes to ensure compliance and operational efficiency.',
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2815&auto=format&fit=crop',
+    icon: 'Cog6ToothIcon',
+  },
+  {
+    id: 3,
+    title: 'Financial Modelling',
+    description: 'Custom-built financial models to forecast performance, evaluate scenarios, and support strategic decision-making.',
+    imageUrl: 'https://images.unsplash.com/photo-1543286386-713bdd548da4?q=80&w=2940&auto=format&fit=crop',
+    icon: 'CalculatorIcon',
+  },
+  {
+    id: 4,
+    title: 'Valuation',
+    description: 'Accurate business and asset valuation using industry-standard methodologies for mergers, acquisitions, or internal reviews.',
+    imageUrl: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=2940&auto=format&fit=crop',
+    icon: 'BanknotesIcon',
+  },
+  {
+    id: 5,
+    title: 'Stock Market Recommendations',
+    description: 'Expert-curated stock picks and market insights based on deep fundamental analysis and intrinsic valuation models.',
+    imageUrl: 'https://images.unsplash.com/photo-1611974765270-ca12586343bb?q=80&w=2940&auto=format&fit=crop',
+    icon: 'LightbulbIcon',
+  },
+];
+
+export const initialSlideshowImages: SlideshowImage[] = [
+  {
+    id: 1,
+    url: 'https://images.unsplash.com/photo-1611974765270-ca12586343bb?q=80&w=2940&auto=format&fit=crop',
+    title: 'Expert Stock Market Analysis',
+    subtitle: 'Precision-driven insights for your investment portfolio.',
+  },
+  {
+    id: 2,
+    url: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=2940&auto=format&fit=crop',
+    title: 'Professional Company Accounts',
+    subtitle: 'Comprehensive accounting solutions for modern businesses.',
+  },
+  {
+    id: 3,
+    url: 'https://images.unsplash.com/photo-1454165833767-027ffea9e778?q=80&w=2940&auto=format&fit=crop',
+    title: 'Strategic Auditing Services',
+    subtitle: 'Ensuring transparency and financial integrity at every level.',
+  },
+  {
+    id: 4,
+    url: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=2940&auto=format&fit=crop',
+    title: 'Global Financial Advisory',
+    subtitle: 'Expert guidance to navigate complex market landscapes.',
+  },
+  {
+    id: 5,
+    url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2940&auto=format&fit=crop',
+    title: 'Data-Driven Growth',
+    subtitle: 'Unlocking business potential through advanced analytics.',
+  },
+  {
+    id: 6,
+    url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2815&auto=format&fit=crop',
+    title: 'Business Intelligence',
+    subtitle: 'Turning complex data into actionable strategic roadmaps.',
+  },
+  {
+    id: 7,
+    url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2940&auto=format&fit=crop',
+    title: 'Corporate Strategy',
+    subtitle: 'Building resilient organizations for a competitive future.',
+  },
+  {
+    id: 8,
+    url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=3132&auto=format&fit=crop',
+    title: 'Collaborative Success',
+    subtitle: 'Partnering with you to achieve ambitious financial goals.',
+  },
+];

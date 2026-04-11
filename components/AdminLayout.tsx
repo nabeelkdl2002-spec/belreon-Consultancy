@@ -12,6 +12,12 @@ import { UserRole } from '../types';
 const getPageTitle = (pathname: string): string => {
   if (pathname.endsWith('/app-modify/services')) return 'Stock Recommendations';
   if (pathname.endsWith('/app-modify/about-us')) return "Manage 'About Us' Page";
+  
+  if (pathname.startsWith('/admin/clients/')) {
+    const service = pathname.split('/').pop() || '';
+    if (service === 'stock-market') return 'Stock Market Clients';
+    return service.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Clients';
+  }
 
   const path = pathname.split('/').pop() || 'dashboard';
   switch (path) {
@@ -36,8 +42,10 @@ const getPageTitle = (pathname: string): string => {
       return 'Settings';
     case 'trash':
       return 'Trash';
+    case 'slideshow':
+      return 'Slideshow Controller';
     default:
-      return 'Belreon';
+      return 'BELREON';
   }
 };
 

@@ -12,7 +12,7 @@ const PublicFooter: React.FC = () => {
                         <Link to="/" className="inline-block">
                             <img src={companyLogo} alt="Company Logo" className="h-32" />
                         </Link>
-                         <p className="text-sm mt-2 max-w-xs">Expert consulting for a new era of business.</p>
+                         <p className="text-sm mt-2 max-w-xs">Simplifying Finance for Every Business.</p>
                          <div className="mt-4">
                              <h3 className="text-md font-semibold text-white uppercase tracking-wider mb-2">Contact Us</h3>
                              <a href="mailto:belreonconsultancy@gmail.com" className="text-slate-300 hover:text-white transition-colors duration-300">

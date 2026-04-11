@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Squares2X2Icon, PencilSquareIcon } from '../components/icons';
+import { Squares2X2Icon, PencilSquareIcon, PhotoIcon } from '../components/icons';
 
 const AppModifyPage: React.FC = () => {
   return (
@@ -38,6 +38,34 @@ const AppModifyPage: React.FC = () => {
             <div>
               <h2 className="text-xl font-bold text-slate-800">Manage 'About Us' Page</h2>
               <p className="mt-1 text-slate-500 text-sm">Update the company description, images, and feature highlights on your homepage.</p>
+            </div>
+          </div>
+        </Link>
+        <Link
+          to="/admin/services"
+          className="bg-white p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 block"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="bg-purple-100 text-purple-700 p-3 rounded-lg">
+              <Squares2X2Icon />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-800">Manage Our Services</h2>
+              <p className="mt-1 text-slate-500 text-sm">Update service titles, descriptions, and images displayed on the homepage.</p>
+            </div>
+          </div>
+        </Link>
+        <Link
+          to="/admin/slideshow"
+          className="bg-white p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 block"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="bg-amber-100 text-amber-700 p-3 rounded-lg">
+              <PhotoIcon />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-800">Slideshow Controller</h2>
+              <p className="mt-1 text-slate-500 text-sm">Adjust the number of slides, upload new images, and manage your hero section.</p>
             </div>
           </div>
         </Link>

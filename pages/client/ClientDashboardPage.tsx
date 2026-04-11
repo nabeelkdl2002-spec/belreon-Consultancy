@@ -12,13 +12,13 @@ const NewClientView: React.FC<{ client: Client }> = ({ client }) => (
             Welcome, {client.userId}!
         </h1>
         <p className="text-slate-600 max-w-2xl mx-auto mb-8">
-            Thank you for creating an account with Belreon. To get started, please tell us about your project needs by submitting an inquiry.
+            Thank you for creating an account with Belreon. To get started, please tell us about your requirements by submitting an enquiry through our common portal.
         </p>
         <Link 
             to="/client/new-inquiry"
             className="inline-block bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg hover:bg-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
         >
-            Submit a Project Inquiry
+            Submit an Enquiry
         </Link>
     </div>
 );
@@ -26,10 +26,10 @@ const NewClientView: React.FC<{ client: Client }> = ({ client }) => (
 const PendingApprovalView: React.FC<{ client: Client }> = ({ client }) => (
      <div className="text-center bg-white p-10 rounded-xl shadow-md">
         <h1 className="text-3xl font-bold text-slate-800 mb-4">
-            Inquiry Submitted!
+            Enquiry Submitted!
         </h1>
         <p className="text-slate-600 max-w-2xl mx-auto mb-2">
-            Thank you, {client.contactPerson}. We have received your project inquiry for <span className="font-semibold">{client.service}</span>.
+            Thank you, {client.contactPerson}. We have received your enquiry for <span className="font-semibold">{client.service}</span>.
         </p>
          <p className="text-slate-600 max-w-2xl mx-auto">
             Our team is reviewing the details and we will be in touch with you shortly.
@@ -52,14 +52,14 @@ const ApprovedClientView: React.FC<{ client: Client }> = ({ client }) => (
                 <Card title="Contact Email" value={client.email} />
             </div>
 
-            <Card title="Project Overview">
+            <Card title="Enquiry Overview">
                 <div className="space-y-4">
                     <div>
                         <h4 className="font-semibold text-slate-600">Service</h4>
                         <p className="text-lg text-slate-800">{client.service}</p>
                     </div>
                      <div>
-                        <h4 className="font-semibold text-slate-600">Project Status</h4>
+                        <h4 className="font-semibold text-slate-600">Enquiry Status</h4>
                         <div className="mt-1"><StatusBadge status={client.projectStatus} /></div>
                     </div>
                 </div>

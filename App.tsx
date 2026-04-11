@@ -18,6 +18,9 @@ import ClientRegisterPage from './pages/ClientRegisterPage';
 import PaymentPage from './pages/PaymentPage';
 import NotFoundPage from './pages/NotFoundPage';
 import HomePage from './pages/HomePage';
+import BelreonFinopsPage from './pages/BelreonFinopsPage';
+import FinopsAuthPage from './pages/FinopsAuthPage';
+import AdminFinopsPage from './pages/AdminFinopsPage';
 import ClientDashboardPage from './pages/client/ClientDashboardPage';
 import NewInquiryPage from './pages/client/NewInquiryPage';
 import PublicLayout from './components/PublicLayout';
@@ -29,6 +32,8 @@ import { useAuth } from './contexts/AuthContext';
 import AdvertisementManagerPage from './pages/AdvertisementManagerPage';
 import AppModifyPage from './pages/AppModifyPage';
 import NewsManagerPage from './pages/NewsManagerPage';
+import AdminServicesPage from './pages/AdminServicesPage';
+import AdminSlideshowPage from './pages/AdminSlideshowPage';
 
 
 function App() {
@@ -47,6 +52,8 @@ function App() {
       {/* Public Routes */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/finops" element={<BelreonFinopsPage />} />
+        <Route path="/finops/auth" element={<FinopsAuthPage />} />
         <Route path="/payment" element={<PaymentPage />} />
       </Route>
 
@@ -67,14 +74,18 @@ function App() {
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="clients" element={<ClientsPage />} />
+        <Route path="clients/:service" element={<ClientsPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="financials" element={<FinancialsPage />} />
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="database" element={<DatabasePage />} />
         <Route path="news" element={<NewsManagerPage />} />
+        <Route path="services" element={<AdminServicesPage />} />
+        <Route path="slideshow" element={<AdminSlideshowPage />} />
         <Route path="app-modify" element={<AppModifyPage />} />
         <Route path="app-modify/services" element={<ServicesPage />} />
         <Route path="app-modify/about-us" element={<AdvertisementManagerPage />} />
+        <Route path="finops" element={<AdminFinopsPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="trash" element={<TrashPage />} />
       </Route>

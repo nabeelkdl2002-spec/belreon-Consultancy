@@ -1,8 +1,8 @@
 
 
 import React, { createContext, useState, useContext, useMemo, useCallback } from 'react';
-import { User, Client, Stock, NewsItem, Transaction, UserRole, ProjectStatus, FinancialStatementItem, FinancialStatementCategory, AboutUsContent, UserStatus } from '../types';
-import { users as mockUsers, clients as mockClients, initialStocks, initialNews, transactions as mockTransactions, initialProfitAndLossData, initialBalanceSheetData, chartOfAccounts as mockChartOfAccounts, initialAboutUsContent } from '../constants';
+import { User, Client, Stock, NewsItem, Transaction, UserRole, ProjectStatus, FinancialStatementItem, FinancialStatementCategory, AboutUsContent, UserStatus, Service, SlideshowImage } from '../types';
+import { users as mockUsers, clients as mockClients, initialStocks, initialNews, transactions as mockTransactions, initialProfitAndLossData, initialBalanceSheetData, chartOfAccounts as mockChartOfAccounts, initialAboutUsContent, initialServices, initialSlideshowImages } from '../constants';
 
 // This is a partial type for the new client registration form
 type NewClientData = Pick<Client, 'userId' | 'email' | 'password'>;
@@ -22,7 +22,10 @@ interface AuthContextType {
   balanceSheetData: FinancialStatementItem[];
   chartOfAccounts: typeof mockChartOfAccounts;
   aboutUsContent: AboutUsContent;
+  services: Service[];
+  slideshowImages: SlideshowImage[];
   companyName: string;
+  companyTagline: string;
   companyLogo: string;
   theme: Theme;
   login: (identity: string, password?: string, userType?: 'admin' | 'client') => boolean;
@@ -39,6 +42,16 @@ interface AuthContextType {
   addNews: (news: Omit<NewsItem, 'id'>) => void;
   updateNews: (news: NewsItem) => void;
   updateAboutUsContent: (newContent: AboutUsContent) => void;
+  updateService: (service: Service) => void;
+  addService: (service: Omit<Service, 'id'>) => void;
+  deleteService: (serviceId: number) => void;
+  restoreService: (serviceId: number) => void;
+  permanentlyDeleteService: (serviceId: number) => void;
+  updateSlideshowImage: (image: SlideshowImage) => void;
+  addSlideshowImage: (image: Omit<SlideshowImage, 'id'>) => void;
+  deleteSlideshowImage: (imageId: number) => void;
+  restoreSlideshowImage: (imageId: number) => void;
+  permanentlyDeleteSlideshowImage: (imageId: number) => void;
   setCompanyName: (name: string) => void;
   setCompanyLogo: (url: string) => void;
   setTheme: (theme: Theme) => void;
@@ -82,7 +95,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [balanceSheetData, setBalanceSheetData] = useState<FinancialStatementItem[]>(initialBalanceSheetData);
   const [chartOfAccounts] = useState(mockChartOfAccounts);
   const [aboutUsContent, setAboutUsContent] = useState<AboutUsContent>(initialAboutUsContent);
-  const [companyName, setCompanyName] = useState<string>('Belreon');
+  const [services, setServices] = useState<Service[]>(initialServices);
+  const [slideshowImages, setSlideshowImages] = useState<SlideshowImage[]>(initialSlideshowImages);
+  const [companyName, setCompanyName] = useState<string>('BELREON');
+  const [companyTagline] = useState<string>('Simplifying Finance for Every Business');
   const [companyLogo, setCompanyLogo] = useState<string>('https://image2url.com/images/1755352385981-db5dd9de-70de-4e0b-a458-8588a342a9c8.jpg');
   const [theme, setTheme] = useState<Theme>('light');
 
@@ -236,6 +252,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAboutUsContent(newContent);
   }, []);
 
+  const updateService = useCallback((updatedService: Service) => {
+    setServices(prev => prev.map(s => s.id === updatedService.id ? updatedService : s));
+  }, []);
+
+  const addService = useCallback((serviceData: Omit<Service, 'id'>) => {
+    setServices(prev => [...prev, { ...serviceData, id: Date.now() }]);
+  }, []);
+
+  const deleteService = useCallback((id: number) => {
+    const deletor = currentUser && 'username' in currentUser ? currentUser.username : 'System';
+    setServices(p => p.map(s => s.id === id ? { ...s, isDeleted: true, deletedBy: deletor } : s));
+  }, [currentUser]);
+
+  const restoreService = useCallback((id: number) => setServices(p => p.map(s => {
+    if (s.id === id) { const { deletedBy, ...rest } = s; return { ...rest, isDeleted: false }; }
+    return s;
+  })), []);
+
+  const permanentlyDeleteService = useCallback((id: number) => setServices(p => p.filter(s => s.id !== id)), []);
+
+  const updateSlideshowImage = useCallback((updatedImage: SlideshowImage) => {
+    setSlideshowImages(prev => prev.map(img => img.id === updatedImage.id ? updatedImage : img));
+  }, []);
+
+  const addSlideshowImage = useCallback((imageData: Omit<SlideshowImage, 'id'>) => {
+    setSlideshowImages(prev => [...prev, { ...imageData, id: Date.now() }]);
+  }, []);
+
+  const deleteSlideshowImage = useCallback((id: number) => {
+    setSlideshowImages(p => p.map(img => img.id === id ? { ...img, isDeleted: true } : img));
+  }, []);
+
+  const restoreSlideshowImage = useCallback((id: number) => setSlideshowImages(p => p.map(img => {
+    if (img.id === id) return { ...img, isDeleted: false };
+    return img;
+  })), []);
+
+  const permanentlyDeleteSlideshowImage = useCallback((id: number) => setSlideshowImages(p => p.filter(img => img.id !== id)), []);
+
   // Financials
   const addFinancialTransaction = useCallback((transaction: { entries: Omit<FinancialStatementItem, 'id' | 'transactionId'>[] }) => {
     const transactionId = `txn_${Date.now()}`;
@@ -358,7 +413,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     balanceSheetData,
     chartOfAccounts,
     aboutUsContent,
+    services,
+    slideshowImages,
     companyName,
+    companyTagline,
     companyLogo,
     theme,
     login,
@@ -375,6 +433,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     addNews,
     updateNews,
     updateAboutUsContent,
+    updateService,
+    addService,
+    deleteService,
+    restoreService,
+    permanentlyDeleteService,
+    updateSlideshowImage,
+    addSlideshowImage,
+    deleteSlideshowImage,
+    restoreSlideshowImage,
+    permanentlyDeleteSlideshowImage,
     setCompanyName,
     setCompanyLogo,
     setTheme,
@@ -398,7 +466,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     permanentlyDeleteUser,
     permanentlyDeleteTransaction,
     permanentlyDeleteAboutUsFeature,
-  }), [currentUser, userType, clients, users, transactions, stocks, news, profitAndLossData, balanceSheetData, chartOfAccounts, aboutUsContent, companyName, companyLogo, theme, login, logout, registerClient, updateClientInquiry, updateClientStatus, updateClientDetails, addClient, addUser, updateUser, addStock, updateStock, addNews, updateNews, updateAboutUsContent, addFinancialTransaction, deleteFinancialTransaction, deleteStock, deleteNews, deleteClient, deleteUser, deleteTransaction, deleteAboutUsFeature, restoreStock, restoreNews, restoreClient, restoreUser, restoreTransaction, restoreAboutUsFeature, permanentlyDeleteStock, permanentlyDeleteNews, permanentlyDeleteClient, permanentlyDeleteUser, permanentlyDeleteTransaction, permanentlyDeleteAboutUsFeature]);
+  }), [currentUser, userType, clients, users, transactions, stocks, news, profitAndLossData, balanceSheetData, chartOfAccounts, aboutUsContent, services, slideshowImages, companyName, companyTagline, companyLogo, theme, login, logout, registerClient, updateClientInquiry, updateClientStatus, updateClientDetails, addClient, addUser, updateUser, addStock, updateStock, addNews, updateNews, updateAboutUsContent, updateService, addService, deleteService, restoreService, permanentlyDeleteService, updateSlideshowImage, addSlideshowImage, deleteSlideshowImage, restoreSlideshowImage, permanentlyDeleteSlideshowImage, addFinancialTransaction, deleteFinancialTransaction, deleteStock, deleteNews, deleteClient, deleteUser, deleteTransaction, deleteAboutUsFeature, restoreStock, restoreNews, restoreClient, restoreUser, restoreTransaction, restoreAboutUsFeature, permanentlyDeleteStock, permanentlyDeleteNews, permanentlyDeleteClient, permanentlyDeleteUser, permanentlyDeleteTransaction, permanentlyDeleteAboutUsFeature]);
 
   return (
     <AuthContext.Provider value={authContextValue}>

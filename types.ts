@@ -137,3 +137,21 @@ export interface AboutUsContent {
   paragraph: string;
   features: AboutUsFeature[];
 }
+
+export interface Service {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  icon: AboutUsIcon;
+  isDeleted?: boolean;
+  deletedBy?: string;
+}
+
+export interface SlideshowImage {
+  id: number;
+  url: string;
+  title?: string;
+  subtitle?: string;
+  isDeleted?: boolean;
+}

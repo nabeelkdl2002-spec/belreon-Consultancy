@@ -6,10 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import { Client } from '../../types';
 
 const NewInquiryPage: React.FC = () => {
-    const { user, stocks, updateClientInquiry } = useAuth();
+    const { user, stocks, services, updateClientInquiry } = useAuth();
     const navigate = useNavigate();
     const client = user as Client;
 
+    const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         contactPerson: client?.contactPerson || '',
         email: client?.email || '',
@@ -17,11 +18,11 @@ const NewInquiryPage: React.FC = () => {
         companyName: client?.companyName || '',
         address: client?.address || '',
         service: client?.service || '',
-        otherService: '',
         projectDescription: client?.projectDescription || '',
         budget: client?.budget || '',
         currency: client?.currency || 'USD',
         deadline: client?.deadline || '',
+        selectedStock: '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -29,110 +30,206 @@ const NewInquiryPage: React.FC = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const nextStep = () => {
+        if (step === 1) {
+            if (!formData.contactPerson || !formData.email || !formData.phone || !formData.address) {
+                alert("Please fill in all required personal details.");
+                return;
+            }
+        }
+        if (step === 2) {
+            if (!formData.service) {
+                alert("Please select a service.");
+                return;
+            }
+        }
+        setStep(prev => prev + 1);
+    };
+
+    const prevStep = () => setStep(prev => prev - 1);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const finalService = formData.service === 'Other' ? formData.otherService : formData.service;
         
-        if (!finalService) {
-            alert("Please select a stock/package or specify one.");
-            return;
-        }
-        
-        updateClientInquiry(client.id, {
+        const submissionData = {
             ...formData,
-            service: finalService,
-        });
+            // For stock market, we might want to store the selected stock in the service field or description
+            service: formData.service,
+            projectDescription: formData.service === 'Stock Market Recommendations' 
+                ? `Interested in: ${formData.selectedStock}. ${formData.projectDescription}`
+                : formData.projectDescription
+        };
 
+        updateClientInquiry(client.id, submissionData);
         navigate('/client/dashboard');
     };
 
+    const isStockMarket = formData.service === 'Stock Market Recommendations';
+
     return (
-        <div className="bg-white p-8 rounded-xl shadow-md">
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Submit Investment Inquiry</h1>
-            <p className="text-slate-500 mb-8">Tell us which stocks or investment packages you are interested in.</p>
-            <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Personal & Company Details */}
-                <div className="p-6 border border-slate-200 rounded-lg">
-                    <h2 className="text-xl font-semibold text-slate-700 mb-6">Your Details</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label htmlFor="contactPerson" className="block text-sm font-medium text-slate-600 mb-2">Full Name</label>
-                            <input type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required />
-                        </div>
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-600 mb-2">Email Address</label>
-                            <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required />
-                        </div>
-                        <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-slate-600 mb-2">Phone Number</label>
-                            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required />
-                        </div>
-                        <div>
-                            <label htmlFor="companyName" className="block text-sm font-medium text-slate-600 mb-2">Company Name <span className="text-slate-400">(Optional)</span></label>
-                            <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
-                        </div>
-                         <div className="md:col-span-2">
-                            <label htmlFor="address" className="block text-sm font-medium text-slate-600 mb-2">Address</label>
-                            <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required />
-                        </div>
+        <div className="max-w-4xl mx-auto">
+            <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Common Enquiry Portal</h1>
+                        <span className="bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-sm font-bold">Step {step} of 3</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div 
+                            className="bg-blue-600 h-full transition-all duration-500" 
+                            style={{ width: `${(step / 3) * 100}%` }}
+                        ></div>
                     </div>
                 </div>
 
-                {/* Project Details */}
-                 <div className="p-6 border border-slate-200 rounded-lg">
-                    <h2 className="text-xl font-semibold text-slate-700 mb-6">Investment Interests</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <div className="md:col-span-2">
-                            <label htmlFor="service" className="block text-sm font-medium text-slate-600 mb-2">Interested Stock / Package</label>
-                            <select name="service" value={formData.service} onChange={handleChange} className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 focus:ring-blue-500 focus:border-blue-500" required>
-                                <option value="">-- Please Select --</option>
-                                {stocks.map(s => (
-                                  <option key={s.id} value={s.name}>{s.name} ({s.ticker})</option>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {step === 1 && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="border-b border-slate-100 pb-4">
+                                <h2 className="text-xl font-bold text-slate-800">Personal Information</h2>
+                                <p className="text-slate-500 text-sm">Please provide your contact details to start the enquiry.</p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Full Name</label>
+                                    <input type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="John Doe" required />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Email Address</label>
+                                    <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="john@example.com" required />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Phone Number</label>
+                                    <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="+1 (555) 000-0000" required />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Company Name (Optional)</label>
+                                    <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Acme Inc." />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Address</label>
+                                    <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="123 Business St, City, Country" required />
+                                </div>
+                            </div>
+                            <div className="flex justify-end pt-4">
+                                <button type="button" onClick={nextStep} className="bg-blue-700 text-white font-bold px-10 py-3 rounded-xl hover:bg-blue-800 transition-all shadow-lg shadow-blue-200">Next: Choose Service</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 2 && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="border-b border-slate-100 pb-4">
+                                <h2 className="text-xl font-bold text-slate-800">Select Service</h2>
+                                <p className="text-slate-500 text-sm">Which of our expert services are you interested in?</p>
+                            </div>
+                            <div className="grid grid-cols-1 gap-4">
+                                {services.map(s => (
+                                    <label 
+                                        key={s.id} 
+                                        className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer transition-all ${
+                                            formData.service === s.title 
+                                            ? 'border-blue-600 bg-blue-50 ring-4 ring-blue-50' 
+                                            : 'border-slate-100 hover:border-slate-200 bg-slate-50'
+                                        }`}
+                                    >
+                                        <input 
+                                            type="radio" 
+                                            name="service" 
+                                            value={s.title} 
+                                            checked={formData.service === s.title} 
+                                            onChange={handleChange} 
+                                            className="hidden" 
+                                        />
+                                        <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center ${
+                                            formData.service === s.title ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'
+                                        }`}>
+                                            {formData.service === s.title && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-slate-900">{s.title}</div>
+                                            <div className="text-xs text-slate-500">{s.description}</div>
+                                        </div>
+                                    </label>
                                 ))}
-                                <option value="Other">Other / Custom Portfolio</option>
-                            </select>
-                         </div>
-                         {formData.service === 'Other' && (
-                             <div className="md:col-span-2">
-                                <label htmlFor="otherService" className="block text-sm font-medium text-slate-600 mb-2">Please Specify</label>
-                                <input type="text" name="otherService" value={formData.otherService} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required />
                             </div>
-                         )}
-                        <div className="md:col-span-2">
-                            <label htmlFor="projectDescription" className="block text-sm font-medium text-slate-600 mb-2">Investment Goals / Notes</label>
-                            <textarea name="projectDescription" rows={6} value={formData.projectDescription} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Please describe your investment goals, risk tolerance, etc..." required></textarea>
-                        </div>
-                         <div>
-                            <label htmlFor="budget" className="block text-sm font-medium text-slate-600 mb-2">Investable Capital</label>
-                            <div className="flex items-center space-x-2">
-                                <select name="currency" value={formData.currency} onChange={handleChange} className="px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 focus:ring-blue-500 focus:border-blue-500" required>
-                                    <option value="USD">$ (USD)</option>
-                                    <option value="EUR">€ (EUR)</option>
-                                    <option value="GBP">£ (GBP)</option>
-                                    <option value="INR">₹ (INR)</option>
-                                </select>
-                                <input 
-                                    type="text" 
-                                    name="budget" 
-                                    value={formData.budget} 
-                                    onChange={handleChange} 
-                                    className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
-                                    placeholder="e.g., 10000" 
-                                    required 
-                                />
+                            <div className="flex justify-between pt-4">
+                                <button type="button" onClick={prevStep} className="text-slate-600 font-bold px-6 py-3 rounded-xl hover:bg-slate-100 transition-all">Back</button>
+                                <button type="button" onClick={nextStep} className="bg-blue-700 text-white font-bold px-10 py-3 rounded-xl hover:bg-blue-800 transition-all shadow-lg shadow-blue-200">Next: Details</button>
                             </div>
                         </div>
-                        <div>
-                            <label htmlFor="deadline" className="block text-sm font-medium text-slate-600 mb-2">Investment Horizon Date</label>
-                            <input type="date" name="deadline" value={formData.deadline} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required />
-                        </div>
-                    </div>
-                 </div>
+                    )}
 
-                <div className="flex justify-end">
-                    <button type="submit" className="bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-800 transition-colors">Submit Inquiry</button>
-                </div>
-            </form>
+                    {step === 3 && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="border-b border-slate-100 pb-4">
+                                <h2 className="text-xl font-bold text-slate-800">
+                                    {isStockMarket ? 'Investment Interest Details' : 'Service Requirements'}
+                                </h2>
+                                <p className="text-slate-500 text-sm">
+                                    {isStockMarket 
+                                        ? 'Provide details about your stock market investment goals.' 
+                                        : 'Tell us more about what you need for this service.'}
+                                </p>
+                            </div>
+
+                            {isStockMarket ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Interested Stock / Package</label>
+                                        <select name="selectedStock" value={formData.selectedStock} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all" required>
+                                            <option value="">-- Please Select --</option>
+                                            {stocks.map(s => (
+                                                <option key={s.id} value={s.name}>{s.name} ({s.ticker})</option>
+                                            ))}
+                                            <option value="Custom Portfolio">Other / Custom Portfolio</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Investable Capital</label>
+                                        <div className="flex gap-2">
+                                            <select name="currency" value={formData.currency} onChange={handleChange} className="w-24 px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                                                <option value="USD">$ USD</option>
+                                                <option value="EUR">€ EUR</option>
+                                                <option value="GBP">£ GBP</option>
+                                            </select>
+                                            <input type="text" name="budget" value={formData.budget} onChange={handleChange} className="flex-1 px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="e.g. 50,000" required />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Investment Horizon Date</label>
+                                        <input type="date" name="deadline" value={formData.deadline} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" required />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Additional Notes</label>
+                                        <textarea name="projectDescription" rows={4} value={formData.projectDescription} onChange={handleChange} className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Any specific requirements or risk preferences?"></textarea>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Description of Service Needed</label>
+                                        <textarea 
+                                            name="projectDescription" 
+                                            rows={8} 
+                                            value={formData.projectDescription} 
+                                            onChange={handleChange} 
+                                            className="w-full px-4 py-3 border bg-white text-slate-900 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+                                            placeholder="Please describe your requirements in detail so we can better assist you..." 
+                                            required
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex justify-between pt-4">
+                                <button type="button" onClick={prevStep} className="text-slate-600 font-bold px-6 py-3 rounded-xl hover:bg-slate-100 transition-all">Back</button>
+                                <button type="submit" className="bg-green-600 text-white font-bold px-12 py-3 rounded-xl hover:bg-green-700 transition-all shadow-lg shadow-green-200">Submit Enquiry</button>
+                            </div>
+                        </div>
+                    )}
+                </form>
+            </div>
         </div>
     );
 };
